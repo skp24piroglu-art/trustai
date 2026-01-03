@@ -1,0 +1,142 @@
+
+
+--- Home.tsx ---
+
+import { useState } from "react";
+import { places } from "../data/places";
+
+export default function Home() {
+  const [openId, setOpenId] = useState<number | null>(null);
+  const [isNight, setIsNight] = useState(false);
+
+  return (
+    <div className="app">
+      <div className="card">
+        <h1 style={{ marginBottom: 6 }}>🤖 TrustAI</h1>
+        <p style={{ opacity: 0.9 }}>Yakınındaki güvenilir mekanlar</p>
+
+        {/* 🌙 Gün / Gece Toggle */}
+        <div style={{ margin: "12px 0" }}>
+          <button
+            onClick={() => setIsNight(!isNight)}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              border: "none",
+              cursor: "pointer",
+              background: isNight ? "#0f172a" : "#fde047",
+              color: isNight ? "#fff" : "#000",
+              fontWeight: 600,
+            }}
+          >
+            {isNight ? "🌙 Gece Modu" : "☀️ Gündüz Modu"}
+          </button>
+        </div>
+
+        {places.map((place) => {
+          const isOpen = openId === place.id;
+
+          return (
+            <div key={place.id} className="place">
+              <h3>{place.name}</h3>
+
+              <div className="badge">Trust Score: {place.trustScore}</div>
+
+              <p style={{ margin: "6px 0" }}>
+                ⭐ {place.rating} — {place.description}
+              </p>
+
+              <p
+                style={{ cursor: "pointer", marginTop: 8 }}
+                onClick={() => setOpenId(isOpen ? null : place.id)}
+              >
+                {isOpen ? "🔒 Kapat" : "🔍 Neden Güvenli?"}
+              </p>
+
+              {isOpen && (
+                <>
+                  <ul>
+                    {place.reasons.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+
+                  {/* 🤖 TrustAI Yorumu */}
+                  <p style={{ marginTop: 8, fontSize: 13, opacity: 0.85 }}>
+                    🤖 {isNight ? place.aiCommentNight : place.aiCommentDay}
+                  </p>
+                </>
+              )}
+            </div>
+          );
+        })}
+
+        <p className="beta">🚀 Beta sürüm — Yakında yayındayız</p>
+      </div>
+    </div>
+  );
+}
+
+--- places.ts ---
+
+export type Place = {
+  id: number;
+  name: string;
+  rating: number;
+  trustScore: number;
+  description: string;
+  reasons: string[];
+  aiCommentDay: string;
+  aiCommentNight: string;
+};
+
+export const places: Place[] = [
+  {
+    id: 1,
+    name: "Nomads Restaurant",
+    rating: 4.6,
+    trustScore: 92,
+    description: "Şık atmosfer, kaliteli mutfak",
+    reasons: [
+      "🟢 Düzenli hijyen denetimi",
+      "🟢 Güvenlik kamerası mevcut",
+      "🟢 Güvenilir müşteri profili",
+      "🟢 Merkezi ve aydınlık konum",
+    ],
+    aiCommentDay:
+      "TrustAI, bu mekanı gündüz saatlerinde olumsuz bir güvenlik raporu bulunmadığı ve kullanıcı davranış verileriyle uyumlu olduğu için düşük riskli olarak değerlendirdi.",
+    aiCommentNight:
+      "TrustAI, gece saatlerinde çevresel faktörler ve kullanıcı yoğunluğu nedeniyle daha dikkatli olunmasını öneriyor.",
+  },
+  {
+    id: 2,
+    name: "Premium Bistro",
+    rating: 4.8,
+    trustScore: 85,
+    description: "Premium servis, özel deneyim",
+    reasons: [
+      "🔵 Kapalı ve kontrollü alan",
+      "🔵 Eğitimli personel",
+      "🔵 Rezervasyonlu giriş",
+    ],
+    aiCommentDay:
+      "TrustAI, bu mekanı genel olarak güvenli bulmakta ve gündüz saatlerinde düşük risk grubunda değerlendirmektedir.",
+    aiCommentNight:
+      "TrustAI, mekanın güvenli olduğunu ancak gece saatlerinde kontrollü risk faktörleri nedeniyle dikkatli olunmasını öneriyor.",
+  },
+  {
+    id: 3,
+    name: "Local Cafe",
+    rating: 4.1,
+    trustScore: 74,
+    description: "Samimi ortam, uygun fiyat",
+    reasons: [
+      "🟡 Mahalle içi sakin konum",
+      "🟡 Uzun süredir hizmet veren işletme",
+    ],
+    aiCommentDay:
+      "TrustAI, bu mekanın gündüz saatlerinde genel olarak güvenli olduğunu ancak ortalama risk seviyesinde bulunduğunu belirtiyor.",
+    aiCommentNight:
+      "TrustAI, bu mekan için zaman zaman olumsuz bildirimler alındığını ve gece saatlerinde orta seviyede risk barındırdığını tespit etti.",
+  },
+];
