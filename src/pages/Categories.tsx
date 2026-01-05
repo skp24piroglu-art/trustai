@@ -9,25 +9,39 @@ export default function Categories() {
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return CATEGORIES;
-    return CATEGORIES.filter((c) => `${c.title} ${c.subtitle ?? ""}`.toLowerCase().includes(s));
+    return CATEGORIES.filter((c) =>
+      `${c.title} ${c.subtitle ?? ""}`.toLowerCase().includes(s)
+    );
   }, [q]);
+
+  const goHome = () => nav("/");
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "radial-gradient(circle at top, #1d9aa6, #0b3a41 65%, #071d22)",
+        background:
+          "radial-gradient(circle at top, #1d9aa6, #0b3a41 65%, #071d22)",
         padding: 16,
         color: "white",
       }}
     >
-      {/* üst bar (logolar gibi) */}
-      <div style={{ maxWidth: 980, margin: "0 auto", display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ fontWeight: 900, display: "flex", gap: 8, alignItems: "center" }}>
-          ✅ e-trust search
-        </div>
+      {/* üst bar */}
+      <div
+        style={{
+          maxWidth: 980,
+          margin: "0 auto",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+        }}
+      >
+        <div style={{ fontWeight: 900 }}>✅ e-trust search</div>
         <div style={{ marginLeft: "auto", display: "flex", gap: 8, opacity: 0.85 }}>
-          <span>🏆</span><span>🥇</span><span>🛡️</span><span>👑</span>
+          <span>🏆</span>
+          <span>🥇</span>
+          <span>🛡️</span>
+          <span>👑</span>
         </div>
       </div>
 
@@ -44,8 +58,9 @@ export default function Categories() {
           position: "relative",
         }}
       >
+        {/* ❗ Kapat butonu: sadece Home’a döner */}
         <button
-          onClick={() => nav("/home")}
+          onClick={goHome}
           title="Kapat"
           style={{
             position: "absolute",
@@ -65,62 +80,75 @@ export default function Categories() {
           ×
         </button>
 
-        <div style={{ textAlign: "center", fontSize: 18, fontWeight: 900, letterSpacing: 0.5 }}>
+        <div style={{ textAlign: "center", fontWeight: 900, letterSpacing: 0.6 }}>
           KATEGORİLER
         </div>
 
-        <div style={{ marginTop: 14, display: "flex", gap: 10, alignItems: "center" }}>
-          <span style={{ opacity: 0.9 }}>🔎</span>
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Kategori ara..."
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.22)",
-              background: "rgba(0,0,0,0.18)",
-              color: "white",
-              outline: "none",
-            }}
-          />
-        </div>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Kategori ara..."
+          style={{
+            width: "100%",
+            marginTop: 12,
+            padding: 10,
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.22)",
+            background: "rgba(0,0,0,0.18)",
+            color: "white",
+            outline: "none",
+          }}
+        />
 
         <div
           style={{
             marginTop: 14,
             display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gridTemplateColumns: "repeat(2, 1fr)",
             gap: 12,
           }}
         >
-          {filtered.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => nav("/home?category=" + encodeURIComponent(c.id))}
-              style={{
-                padding: "14px 14px",
-                borderRadius: 18,
-                textAlign: "left",
-                background: "rgba(255,255,255,0.10)",
-                border: "1px solid rgba(255,255,255,0.20)",
-                color: "white",
-                cursor: "pointer",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.18) inset",
-              }}
-            >
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <div style={{ fontSize: 20 }}>{c.emoji ?? "•"}</div>
-                <div style={{ fontWeight: 800 }}>{c.title}</div>
-              </div>
-            </button>
-          ))}
+          {filtered.map((c) => {
+            const disabled = !c.hasItems || !c.mapTo;
+
+            return (
+              <button
+                key={c.id}
+                onClick={() => {
+                  if (disabled) {
+                    alert("Bu kategori yakında aktif olacak ✅");
+                    return;
+                  }
+                  // ✅ Home’a filtre parametresi ile git
+                  nav("/?pc=" + encodeURIComponent(c.mapTo));
+                }}
+                style={{
+                  padding: 14,
+                  borderRadius: 18,
+                  textAlign: "left",
+                  background: disabled ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.10)",
+                  border: "1px solid rgba(255,255,255,0.20)",
+                  color: "white",
+                  cursor: "pointer",
+                  opacity: disabled ? 0.55 : 1,
+                }}
+              >
+                <div style={{ fontWeight: 800 }}>
+                  {c.emoji ?? "•"} {c.title}
+                </div>
+                {disabled && (
+                  <div style={{ fontSize: 12, opacity: 0.8, marginTop: 6 }}>
+                    Yakında
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div style={{ maxWidth: 980, margin: "12px auto 0", fontSize: 12, opacity: 0.75 }}>
-        Beta — Şu an: Login + Kategori + Liste. Sıradaki: Favoriler + Harita.
+      <div style={{ maxWidth: 980, margin: "12px auto", fontSize: 12, opacity: 0.8 }}>
+        Beta — Login + Kategori + Liste (şimdilik bazı kategoriler “yakında”)
       </div>
     </div>
   );
