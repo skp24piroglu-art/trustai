@@ -1,416 +1,321 @@
 import { useMemo, useState } from "react";
+import CategoriesOverlay from "../components/CategoriesOverlay";
 import { useNavigate } from "react-router-dom";
-import { places, type Place } from "../data/places";
-
-type Category = Place["category"];
-
-const CATEGORY_META: Record<
-  Category,
-  { title: string; emoji: string; hint: string }
-> = {
-  restaurant: {
-    title: "Restoranlar",
-    emoji: "🍽️",
-    hint: "Yemek & deneyim",
-  },
-  cafe: {
-    title: "Kafeler",
-    emoji: "☕",
-    hint: "Kahve & çalışma",
-  },
-  hotel: {
-    title: "Oteller",
-    emoji: "🏨",
-    hint: "Konaklama",
-  },
-  touristic: {
-    title: "Turistik Yerler",
-    emoji: "🗺️",
-    hint: "Gezi noktaları",
-  },
-};
-
-function getScoreColor(score: number) {
-  if (score >= 90) return "#34d399"; // yeşil
-  if (score >= 80) return "#60a5fa"; // mavi
-  if (score >= 70) return "#facc15"; // sarı
-  return "#fb7185"; // pembe/kırmızımsı
-}
-
-function getTierPill(tier: Place["tier"]) {
-  if (tier === "Premium")
-    return {
-      bg: "rgba(52, 211, 153, 0.14)",
-      fg: "#34d399",
-      bd: "rgba(52, 211, 153, 0.35)",
-    };
-  if (tier === "Güvenli")
-    return {
-      bg: "rgba(96, 165, 250, 0.14)",
-      fg: "#60a5fa",
-      bd: "rgba(96, 165, 250, 0.35)",
-    };
-  return {
-    bg: "rgba(250, 204, 21, 0.14)",
-    fg: "#facc15",
-    bd: "rgba(250, 204, 21, 0.35)",
-  };
-}
 
 export default function Home() {
-  const navigate = useNavigate();
-
+  const nav = useNavigate();
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [dark, setDark] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  function logout() {
-    localStorage.removeItem("trusbe_user");
-    navigate("/login");
-  }
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return places;
-
-    return places.filter((p) => {
-      const hay = `${p.name} ${p.subtitle} ${p.tier} ${p.category} ${p.score}`.toLowerCase();
-      return hay.includes(q);
-    });
+  const suggestions = useMemo(() => {
+    const base = [
+      "Türkiye’nin en güvenilir tarihi yerleri",
+      "Kalabalık olmayan kafe",
+      "Bali’de güvenli otel",
+      "Yakınımdaki hastaneler",
+      "Güvenilir oto servis",
+      "İstanbul’da güvenilir restoran",
+      "Dubai’de güvenli eğlence yerleri",
+      "Katar’da güvenilir hizmet veren işletmeler",
+    ];
+    if (!query.trim()) return base.slice(0, 8);
+    return base.filter((s) =>
+      s.toLowerCase().includes(query.trim().toLowerCase())
+    );
   }, [query]);
 
-  // Bölümlere ayır (restaurant/cafe/hotel/touristic)
-  const sections = useMemo(() => {
-    const order: Category[] = ["restaurant", "cafe", "hotel", "touristic"];
-    return order.map((cat) => ({
-      cat,
-      items: filtered.filter((p) => p.category === cat),
-    }));
-  }, [filtered]);
-
-  const bg = dark
-    ? "radial-gradient(1200px 600px at 10% 0%, rgba(59,130,246,0.20), transparent 60%), radial-gradient(900px 500px at 85% 10%, rgba(34,197,94,0.18), transparent 55%), #070A12"
-    : "radial-gradient(1200px 600px at 10% 0%, rgba(59,130,246,0.10), transparent 60%), radial-gradient(900px 500px at 85% 10%, rgba(34,197,94,0.10), transparent 55%), #F6F7FB";
-
-  const text = dark ? "rgba(255,255,255,0.92)" : "rgba(10,10,10,0.88)";
-  const subtext = dark ? "rgba(255,255,255,0.70)" : "rgba(10,10,10,0.60)";
-  const cardBg = dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
-  const border = dark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)";
-  const soft = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-
   return (
-    <div style={{ minHeight: "100vh", background: bg, color: text }}>
-      <div style={{ maxWidth: 980, margin: "0 auto", padding: "28px 16px 38px" }}>
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ fontSize: 28, lineHeight: 1 }}>🌍</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: -0.5 }}>Trusbe</div>
-            <div style={{ marginTop: 2, color: subtext, fontWeight: 600 }}>
-              Yakındaki güvenilir mekanlar
-            </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f6f7fb",
+        paddingBottom: 72,
+      }}
+    >
+      {/* Top header */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          background: "linear-gradient(180deg,#3f5c9a 0%, #2e3f6e 100%)",
+          padding: "14px 14px 18px",
+          color: "white",
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+          boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              background: "rgba(255,255,255,0.15)",
+              display: "grid",
+              placeItems: "center",
+              fontWeight: 900,
+            }}
+            title="Trusbe"
+          >
+            ✓
           </div>
 
+          <div style={{ fontWeight: 900, letterSpacing: 0.4 }}>e-trust</div>
+
+          <div style={{ flex: 1 }} />
+
           <button
-            onClick={() => setDark((v) => !v)}
-            title="Tema"
-            style={{
-              borderRadius: 999,
-              border: `1px solid ${border}`,
-              background: cardBg,
-              color: text,
-              padding: "10px 14px",
-              cursor: "pointer",
-              backdropFilter: "blur(10px)",
-            }}
+            onClick={() => setCategoriesOpen(true)}
+            style={iconBtn}
+            title="Kategoriler"
           >
-            {dark ? "🌙" : "☀️"}
+            ▦
           </button>
 
           <button
-            onClick={logout}
-            style={{
-              borderRadius: 999,
-              border: `1px solid ${border}`,
-              background: cardBg,
-              color: text,
-              padding: "10px 16px",
-              cursor: "pointer",
-              fontWeight: 800,
-              backdropFilter: "blur(10px)",
+            onClick={() => {
+              localStorage.removeItem("trusbe_user");
+              nav("/login");
             }}
+            style={iconBtn}
+            title="Çıkış"
           >
-            Çıkış
+            ⎋
           </button>
         </div>
 
         {/* Search */}
-        <div
-          style={{
-            marginTop: 18,
-            borderRadius: 18,
-            border: `1px solid ${border}`,
-            background: cardBg,
-            backdropFilter: "blur(12px)",
-            padding: "12px 14px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <span style={{ opacity: 0.8 }}>🔎</span>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="e-trust search (otel, kafe, skor, isim...)"
+        <div style={{ marginTop: 14, position: "relative" }}>
+          <div
             style={{
-              width: "100%",
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              color: text,
-              fontSize: 16,
-              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              background: "rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.22)",
+              borderRadius: 16,
+              padding: "10px 12px",
+              backdropFilter: "blur(10px)",
             }}
-          />
-        </div>
+          >
+            <span style={{ opacity: 0.9 }}>🎤</span>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="e-trust search (otel, kafe, isim, skor...)"
+              style={{
+                flex: 1,
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                color: "white",
+                fontSize: 14,
+              }}
+            />
+            <button
+              onClick={() => alert("Search: " + (query || "—"))}
+              style={{
+                border: "none",
+                background: "rgba(255,255,255,0.18)",
+                color: "white",
+                padding: "8px 12px",
+                borderRadius: 14,
+                cursor: "pointer",
+                fontWeight: 800,
+              }}
+            >
+              🔍
+            </button>
+          </div>
 
-        {/* SECTIONS: Bölüm bölüm */}
-        <div style={{ marginTop: 18, display: "grid", gap: 26 }}>
-          {sections.map(({ cat, items }) => {
-            const meta = CATEGORY_META[cat];
-
-            // Arama varken boş bölümleri hiç göstermeyelim (daha temiz)
-            if (query.trim() && items.length === 0) return null;
-
-            return (
-              <div key={cat}>
-                {/* Section header */}
+          {/* Suggestions dropdown */}
+          {query.trim().length > 0 && (
+            <div
+              style={{
+                marginTop: 10,
+                background: "white",
+                borderRadius: 16,
+                boxShadow: "0 20px 50px rgba(0,0,0,0.18)",
+                overflow: "hidden",
+                border: "1px solid rgba(15,23,42,0.08)",
+              }}
+            >
+              {suggestions.slice(0, 7).map((s) => (
                 <div
+                  key={s}
+                  onClick={() => setQuery(s)}
                   style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    marginBottom: 12,
+                    padding: "12px 14px",
+                    cursor: "pointer",
+                    borderBottom: "1px solid rgba(15,23,42,0.06)",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                    <div style={{ fontSize: 20 }}>{meta.emoji}</div>
-                    <div style={{ fontSize: 20, fontWeight: 950, letterSpacing: -0.2 }}>
-                      {meta.title}
-                    </div>
-                    <div style={{ color: subtext, fontWeight: 700, fontSize: 13 }}>
-                      {meta.hint}
-                    </div>
-                  </div>
-
-                  <div style={{ color: subtext, fontWeight: 800, fontSize: 12 }}>
-                    {items.length} adet
-                  </div>
+                  {s}
                 </div>
-
-                {/* Cards in this section */}
-                <div style={{ display: "grid", gap: 16 }}>
-                  {items.map((p) => {
-                    const scoreColor = getScoreColor(p.score);
-                    const pill = getTierPill(p.tier);
-                    const open = expandedId === p.id;
-
-                    return (
-                      <div
-                        key={p.id}
-                        style={{
-                          borderRadius: 22,
-                          border: `1px solid ${border}`,
-                          background: cardBg,
-                          padding: 18,
-                          boxShadow: dark
-                            ? "0 18px 60px rgba(0,0,0,0.35)"
-                            : "0 18px 60px rgba(0,0,0,0.10)",
-                          backdropFilter: "blur(14px)",
-                        }}
-                      >
-                        {/* Title row */}
-                        <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 24, fontWeight: 950, letterSpacing: -0.4 }}>
-                              {p.name}
-                            </div>
-                            <div style={{ marginTop: 4, color: subtext, fontWeight: 700 }}>
-                              {p.subtitle}
-                            </div>
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "flex-end",
-                              gap: 8,
-                            }}
-                          >
-                            <span
-                              style={{
-                                padding: "7px 12px",
-                                borderRadius: 999,
-                                border: `1px solid ${pill.bd}`,
-                                background: pill.bg,
-                                color: pill.fg,
-                                fontWeight: 900,
-                                fontSize: 13,
-                              }}
-                            >
-                              {p.tier}
-                            </span>
-
-                            <div style={{ color: subtext, fontWeight: 800, fontSize: 12 }}>
-                              {p.score}/100
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Trust score bar */}
-                        <div style={{ marginTop: 14 }}>
-                          <div style={{ color: subtext, fontWeight: 800, fontSize: 13 }}>
-                            Trust Score
-                          </div>
-
-                          <div
-                            style={{
-                              marginTop: 8,
-                              height: 10,
-                              borderRadius: 999,
-                              background: soft,
-                              overflow: "hidden",
-                              border: `1px solid ${border}`,
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: `${p.score}%`,
-                                height: "100%",
-                                background: `linear-gradient(90deg, ${scoreColor}, rgba(255,255,255,0.12))`,
-                                transition: "width .25s ease",
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10 }}>
-                          <button
-                            style={{
-                              borderRadius: 999,
-                              border: `1px solid ${border}`,
-                              background: soft,
-                              color: text,
-                              padding: "10px 14px",
-                              cursor: "pointer",
-                              fontWeight: 900,
-                            }}
-                            title="Beğendim"
-                          >
-                            👍
-                          </button>
-                          <button
-                            style={{
-                              borderRadius: 999,
-                              border: `1px solid ${border}`,
-                              background: soft,
-                              color: text,
-                              padding: "10px 14px",
-                              cursor: "pointer",
-                              fontWeight: 900,
-                            }}
-                            title="Beğenmedim"
-                          >
-                            👎
-                          </button>
-
-                          <div style={{ flex: 1 }} />
-
-                          <button
-                            style={{
-                              borderRadius: 999,
-                              border: `1px solid ${border}`,
-                              background: soft,
-                              color: text,
-                              padding: "10px 14px",
-                              cursor: "pointer",
-                              fontWeight: 900,
-                            }}
-                            title="Favori"
-                          >
-                            🤍
-                          </button>
-
-                          <button
-                            onClick={() => setExpandedId((cur) => (cur === p.id ? null : p.id))}
-                            style={{
-                              borderRadius: 999,
-                              border: `1px solid ${border}`,
-                              background: soft,
-                              color: text,
-                              padding: "10px 16px",
-                              cursor: "pointer",
-                              fontWeight: 900,
-                            }}
-                          >
-                            {open ? "Kapat" : "Neden Güvenli?"}
-                          </button>
-                        </div>
-
-                        {/* Expand */}
-                        {open && (
-                          <div
-                            style={{
-                              marginTop: 14,
-                              borderRadius: 18,
-                              border: `1px solid ${border}`,
-                              background: dark ? "rgba(0,0,0,0.22)" : "rgba(255,255,255,0.65)",
-                              padding: 14,
-                            }}
-                          >
-                            <div style={{ fontSize: 18, fontWeight: 950, marginBottom: 8 }}>
-                              Güvenlik Sinyalleri
-                            </div>
-
-                            <ul
-                              style={{
-                                margin: 0,
-                                paddingLeft: 20,
-                                color: subtext,
-                                fontWeight: 700,
-                                lineHeight: 1.7,
-                              }}
-                            >
-                              {(p.signals || []).map((s) => (
-                                <li key={s}>
-                                  <span style={{ color: text }}>✅</span> {s}
-                                </li>
-                              ))}
-                            </ul>
-
-                            <div style={{ marginTop: 10, color: subtext, fontWeight: 700, fontSize: 13 }}>
-                              🤖 <span style={{ color: text, fontWeight: 900 }}>TrustAI yorumu:</span>{" "}
-                              Genel risk düşük. Yoğun saatlerde çevre faktörlerini kontrol et.
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          )}
         </div>
 
-        <div style={{ marginTop: 18, color: subtext, fontWeight: 700, fontSize: 12 }}>
-          🚀 Beta — Şu an: Login + Home liste + bölümleme. Sıradaki adım: gerçek kullanıcı (Register) + gerçek DB.
-        </div>
+        {/* Selected category chip */}
+        {selectedCategory ? (
+          <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+            <div
+              style={{
+                padding: "8px 12px",
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.18)",
+                border: "1px solid rgba(255,255,255,0.22)",
+                fontWeight: 700,
+                fontSize: 12,
+              }}
+            >
+              Filtre: {selectedCategory}
+            </div>
+            <button
+              onClick={() => setSelectedCategory(null)}
+              style={{
+                padding: "8px 12px",
+                borderRadius: 999,
+                background: "rgba(0,0,0,0.15)",
+                border: "1px solid rgba(255,255,255,0.22)",
+                color: "white",
+                cursor: "pointer",
+                fontWeight: 800,
+                fontSize: 12,
+              }}
+            >
+              Temizle
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: 14 }}>
+        <SectionCard
+          icon="✅"
+          title="Bee’nin Seçimleri"
+          desc="Bölgenizdeki en güvenilir öneriler burada."
+        />
+        <SectionCard
+          icon="🥇"
+          title="Best of Ever"
+          desc="En yüksek güven puanlı yerler."
+        />
+        <SectionCard
+          icon="🏆"
+          title="Top 10 Liste"
+          desc="Kategoriye göre en güvenilir 10."
+        />
+      </div>
+
+      {/* Bottom nav (demo) */}
+      <div
+        style={{
+          position: "fixed",
+          left: 12,
+          right: 12,
+          bottom: 12,
+          height: 56,
+          background: "white",
+          borderRadius: 18,
+          boxShadow: "0 15px 40px rgba(0,0,0,0.18)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          border: "1px solid rgba(15,23,42,0.08)",
+        }}
+      >
+        <NavIcon label="👤" />
+        <NavIcon label="📖" />
+        <NavIcon label="👑" active />
+        <NavIcon label="🏠" />
+      </div>
+
+      {/* Overlay */}
+      <CategoriesOverlay
+        open={categoriesOpen}
+        onClose={() => setCategoriesOpen(false)}
+        onSelectCategory={(id) => setSelectedCategory(id)}
+      />
+    </div>
+  );
+}
+
+function SectionCard({
+  icon,
+  title,
+  desc,
+}: {
+  icon: string;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 12,
+        alignItems: "center",
+        background: "white",
+        borderRadius: 18,
+        padding: 14,
+        marginBottom: 12,
+        boxShadow: "0 12px 25px rgba(0,0,0,0.06)",
+        border: "1px solid rgba(15,23,42,0.06)",
+      }}
+    >
+      <div
+        style={{
+          width: 54,
+          height: 54,
+          borderRadius: 16,
+          background: "linear-gradient(180deg,#f3d27a 0%, #caa546 100%)",
+          display: "grid",
+          placeItems: "center",
+          fontSize: 22,
+        }}
+      >
+        {icon}
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontWeight: 900, fontSize: 16 }}>{title}</div>
+        <div style={{ opacity: 0.7, marginTop: 4 }}>{desc}</div>
       </div>
     </div>
   );
 }
+
+function NavIcon({ label, active }: { label: string; active?: boolean }) {
+  return (
+    <div
+      style={{
+        width: 46,
+        height: 46,
+        borderRadius: 14,
+        display: "grid",
+        placeItems: "center",
+        background: active ? "rgba(79,124,255,0.12)" : "transparent",
+        border: active ? "1px solid rgba(79,124,255,0.25)" : "none",
+        fontSize: 20,
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+const iconBtn: React.CSSProperties = {
+  width: 40,
+  height: 40,
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.22)",
+  background: "rgba(255,255,255,0.14)",
+  color: "white",
+  cursor: "pointer",
+  fontWeight: 900,
+};

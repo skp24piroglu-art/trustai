@@ -1,47 +1,33 @@
-export type PlaceCategory = "restaurant" | "cafe" | "hotel" | "touristic";
-
 export type Category = {
   id: string;
   title: string;
   subtitle?: string;
-  emoji?: string;
-
-  // ✅ Şimdilik bu kategoride içerik var mı?
-  hasItems?: boolean;
-
-  // ✅ Bu kategori şimdilik hangi Home bölümünü filtreliyor?
-  mapTo?: PlaceCategory;
+  icon?: string; // şimdilik opsiyonel
 };
 
 export const CATEGORIES: Category[] = [
-  { id: "construction", title: "İnşaat Malzemeleri/Ev", emoji: "🏠", hasItems: false },
-  { id: "tech", title: "Teknoloji/Elektronik/Ağ", emoji: "💻", hasItems: false },
+  { id: "construction_home", title: "İnşaat Malzemeleri/Ev" },
+  { id: "tech_electronics", title: "Teknoloji/Elektronik/Ağ" },
+  { id: "food_restaurant", title: "Gıda/İçecek/Restaurant" },
+  { id: "beauty", title: "Güzellik/Güzellik End." },
+  { id: "services_trade", title: "Hizmetler/Ticaret" },
+  { id: "daily_life", title: "Günlük/Yaşam Ürünleri" },
+  { id: "public_industry", title: "Ticari/Kamu Endüstrisi" },
+  { id: "equipment_machine", title: "Ekipman/Makine San." },
+  { id: "culture_entertainment", title: "Kültür/Eğlence" },
+  { id: "health_wellness", title: "Sağlık/Wellness" },
+  { id: "education_academic", title: "Eğitim/Akademik" },
+  { id: "automotive_parts", title: "Otomotiv/Yedek Parça" },
+  { id: "people_names", title: "İnsanlar/İsimler/Şahıslar", subtitle: "Phase 2’de açılır" },
+  { id: "city_regions", title: "Şehir/Bölgesel Alanlar" },
+  { id: "brand_categories", title: "Marka Kategorileri" },
+  { id: "travel_stay", title: "Seyahat/Konaklama" },
 
-  // ✅ Şimdilik içerik var: Restaurant
-  { id: "food", title: "Gıda/İçecek/Restaurant", emoji: "🍽️", hasItems: true, mapTo: "restaurant" },
-
-  { id: "beauty", title: "Güzellik/Güzellik End.", emoji: "💄", hasItems: false },
-  { id: "services", title: "Hizmetler/Ticaret", emoji: "🧰", hasItems: false },
-  { id: "daily", title: "Günlük/Yaşam Ürünleri", emoji: "🛒", hasItems: false },
-  { id: "public", title: "Ticari/Kamu Endüstrisi", emoji: "🏛️", hasItems: false },
-  { id: "equipment", title: "Ekipman/Makine San.", emoji: "⚙️", hasItems: false },
-  { id: "culture", title: "Kültür/Eğlence", emoji: "🎭", hasItems: false },
-  { id: "health", title: "Sağlık/Wellness", emoji: "🧘", hasItems: false },
-  { id: "edu", title: "Eğitim/Akademik", emoji: "🎓", hasItems: false },
-  { id: "auto", title: "Otomotiv/Yedek Parça", emoji: "🚗", hasItems: false },
-  { id: "people", title: "İnsanlar/İsimler/Şahıslar", emoji: "👤", hasItems: false },
-
-  // ❗ Şehir/Bölgesel Alanlar = item yoksa tıklayınca ekran değiştirmeyecek
-  { id: "city", title: "Şehir/Bölgesel Alanlar", emoji: "🗺️", hasItems: false },
-
-  { id: "brand", title: "Marka Kategorileri", emoji: "🏷️", hasItems: false },
-
-  // ✅ Şimdilik içerik var: Otel
-  { id: "travel", title: "Seyahat/Konaklama", emoji: "🏨", hasItems: true, mapTo: "hotel" },
-
-  // ✅ Şimdilik içerik var: Kafe
-  { id: "cafe", title: "Kafeler", emoji: "☕", hasItems: true, mapTo: "cafe" },
-
-  // ✅ Şimdilik içerik var: Turistik
-  { id: "tour", title: "Turistik Yerler", emoji: "🧭", hasItems: true, mapTo: "touristic" },
+  // videodaki vizyona göre ekstra (Phase 1’de gösterilebilir)
+  { id: "historic_places", title: "Tarihi Mekanlar", subtitle: "Gezilecek yerler / turistik alanlar" },
+  { id: "parks_squares", title: "Meydanlar & Parklar" },
+  { id: "hospitals", title: "Hastaneler & Klinikler", subtitle: "Acil durumda nereye gideyim?" },
+  { id: "hotels", title: "Oteller" },
+  { id: "cafes", title: "Kafeler" },
+  { id: "nightlife", title: "Eğlence Mekanları" },
 ];
