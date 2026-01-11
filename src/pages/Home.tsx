@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import CategoriesOverlay from "../components/CategoriesOverlay";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const nav = useNavigate();
-
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -27,7 +26,13 @@ export default function Home() {
   }, [query]);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f6f7fb", paddingBottom: 72 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f6f7fb",
+        paddingBottom: 72,
+      }}
+    >
       {/* Top header */}
       <div
         style={{
@@ -53,13 +58,12 @@ export default function Home() {
               placeItems: "center",
               fontWeight: 900,
             }}
-            title="TRUSBE"
+            title="Trusbe"
           >
             ✓
           </div>
 
-          {/* ✅ TRUSBE başlık */}
-          <div style={{ fontWeight: 900, letterSpacing: 0.4 }}>TRUSBE</div>
+          <div style={{ fontWeight: 900, letterSpacing: 0.4 }}>e-trust</div>
 
           <div style={{ flex: 1 }} />
 
@@ -158,7 +162,7 @@ export default function Home() {
 
         {/* Selected category chip */}
         {selectedCategory ? (
-          <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
             <div
               style={{
                 padding: "8px 12px",
@@ -192,9 +196,21 @@ export default function Home() {
 
       {/* Content */}
       <div style={{ padding: 14 }}>
-        <SectionCard icon="✅" title="Bee’nin Seçimleri" desc="Bölgenizdeki en güvenilir öneriler burada." />
-        <SectionCard icon="🥇" title="Best of Ever" desc="En yüksek güven puanlı yerler." />
-        <SectionCard icon="🏆" title="Top 10 Liste" desc="Kategoriye göre en güvenilir 10." />
+        <SectionCard
+          icon="✅"
+          title="Bee’nin Seçimleri"
+          desc="Bölgenizdeki en güvenilir öneriler burada."
+        />
+        <SectionCard
+          icon="🥇"
+          title="Best of Ever"
+          desc="En yüksek güven puanlı yerler."
+        />
+        <SectionCard
+          icon="🏆"
+          title="Top 10 Liste"
+          desc="Kategoriye göre en güvenilir 10."
+        />
       </div>
 
       {/* Bottom nav (demo) */}
@@ -230,7 +246,15 @@ export default function Home() {
   );
 }
 
-function SectionCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
+function SectionCard({
+  icon,
+  title,
+  desc,
+}: {
+  icon: string;
+  title: string;
+  desc: string;
+}) {
   return (
     <div
       style={{
