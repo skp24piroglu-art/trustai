@@ -3,7 +3,7 @@ import { CATEGORIES } from "../data/categories";
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSelectCategory?: (categoryId: string) => void;
+  onSelectCategory?: (id: string) => void;
 };
 
 export default function CategoriesOverlay({
@@ -19,103 +19,104 @@ export default function CategoriesOverlay({
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.55)",
-        zIndex: 1000,
+        background: "rgba(0,0,0,0.6)",
+        zIndex: 9999,
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        paddingTop: 80,
-        paddingLeft: 16,
-        paddingRight: 16,
-
-        // ✅ telefonda aşağı kaydırma garanti
-        overflowY: "auto",
-        WebkitOverflowScrolling: "touch",
+        paddingTop: 70,
+        paddingBottom: 20,
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "min(820px, 100%)",
-          background: "rgba(255,255,255,0.10)",
-          border: "1px solid rgba(255,255,255,0.18)",
-          borderRadius: 22,
-          padding: 18,
+          width: "min(900px, 100%)",
+          maxHeight: "85vh",          // 🔥 MOBİL SCROLL
+          overflowY: "auto",          // 🔥 MOBİL SCROLL
+          background: "rgba(255,255,255,0.12)",
+          backdropFilter: "blur(16px)",
+          borderRadius: 24,
+          padding: 20,
           color: "white",
-          backdropFilter: "blur(14px)",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
-
-          // ✅ panel kendi içinde de scroll olabilir
-          maxHeight: "calc(100vh - 120px)",
-          overflowY: "auto",
-          WebkitOverflowScrolling: "touch",
+          border: "1px solid rgba(255,255,255,0.18)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: 0.6 }}>
-            TRUSBE — KATEGORİLER
-          </div>
+        {/* HEADER */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+          <h2 style={{ margin: 0, fontSize: 18, letterSpacing: 1 }}>
+            KATEGORİLER
+          </h2>
           <div style={{ flex: 1 }} />
           <button
             onClick={onClose}
             style={{
-              width: 40,
-              height: 40,
+              width: 36,
+              height: 36,
               borderRadius: 12,
-              border: "1px solid rgba(255,255,255,0.20)",
-              background: "rgba(255,255,255,0.10)",
+              background: "rgba(255,255,255,0.15)",
+              border: "none",
               color: "white",
-              cursor: "pointer",
               fontSize: 18,
-              lineHeight: "40px",
+              cursor: "pointer",
             }}
-            aria-label="Close"
-            title="Kapat"
           >
             ✕
           </button>
         </div>
 
+        {/* LIST */}
         <div
           style={{
-            marginTop: 14,
             display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gridTemplateColumns: "repeat(2, minmax(0,1fr))",
             gap: 12,
           }}
         >
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => {
-                onSelectCategory?.(c.id);
-                onClose();
-              }}
-              style={{
-                textAlign: "left",
-                padding: "12px 14px",
-                borderRadius: 16,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255,255,255,0.10)",
-                color: "white",
-                cursor: "pointer",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ fontSize: 18 }}>{c.emoji ?? "•"}</div>
-                <div style={{ fontWeight: 800 }}>{c.title}</div>
-              </div>
+          {CATEGORIES.map((c) => {
+            const locked = c.phase === 2;
 
-              {c.subtitle ? (
-                <div style={{ marginTop: 6, fontSize: 12, opacity: 0.78 }}>
-                  {c.subtitle}
-                </div>
-              ) : null}
-            </button>
-          ))}
+            return (
+              <button
+                key={c.id}
+                disabled={locked}
+                onClick={() => {
+                  if (!locked) {
+                    onSelectCategory?.(c.id);
+                    onClose();
+                  }
+                }}
+                style={{
+                  textAlign: "left",
+                  padding: "14px 16px",
+                  borderRadius: 18,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: locked
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(255,255,255,0.12)",
+                  color: "white",
+                  cursor: locked ? "not-allowed" : "pointer",
+                  opacity: locked ? 0.5 : 1,
+                }}
+              >
+                <div style={{ fontWeight: 700 }}>{c.title}</div>
+                {c.subtitle && (
+                  <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
+                    {c.subtitle}
+                  </div>
+                )}
+                {locked && (
+                  <div style={{ fontSize: 11, marginTop: 6 }}>
+                    Phase 2’de açılır
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        <div style={{ marginTop: 14, fontSize: 12, opacity: 0.75 }}>
+        {/* FOOTER */}
+        <div style={{ marginTop: 14, fontSize: 12, opacity: 0.7 }}>
           Phase 1: kişiler görünmez (altyapı hazır). Phase 2’de açılır.
         </div>
       </div>
