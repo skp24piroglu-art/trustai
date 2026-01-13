@@ -1,31 +1,22 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoriesOverlay from "../components/CategoriesOverlay";
+import ExpandableSection from "../components/ExpandableSection";
 
-/**
- * TRUSBE Home (KİLİT TASARIM)
- * - Header: TRUSBE + Trust Beyond Expectation
- * - Search: e-trust search + Ara butonu
- * - Sağ: Ülke seçici + Kategoriler + Çıkış
- * - 3 kart: Bee / Best / Top10 -> tıklayınca aç/kapa
- * - Alt bar: 4 ikon (kaybolmayacak)
- */
-
-type ExpandKey = "bee" | "best" | "top";
+type Country = "Türkiye" | "Bali" | "Dubai" | "Katar";
 
 export default function Home() {
   const nav = useNavigate();
 
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [country, setCountry] = useState<"Türkiye" | "Bali" | "Dubai" | "Katar">(
-    "Türkiye"
-  );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [country, setCountry] = useState<Country>("Türkiye");
 
-  // 3 kart aç/kapa
-  const [openKey, setOpenKey] = useState<ExpandKey | null>(null);
-  const toggle = (k: ExpandKey) => setOpenKey((p) => (p === k ? null : k));
+  // Accordion open state
+  const [openKey, setOpenKey] = useState<null | "bee" | "trusted" | "top10">(
+    "bee"
+  );
 
   const suggestions = useMemo(() => {
     const base = [
@@ -44,44 +35,36 @@ export default function Home() {
     );
   }, [query]);
 
-  // Search placeholder + filtre etiketleri
-  const chipText = useMemo(() => {
-    const parts: string[] = [];
-    if (country) parts.push(country);
-    if (selectedCategory) parts.push(selectedCategory);
-    return parts.join(" • ");
-  }, [country, selectedCategory]);
-
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f6f7fb",
-        paddingBottom: 88, // alt bar için yer
-      }}
-    >
-      {/* TOP (Sticky) */}
+    <div style={{ minHeight: "100vh", background: "#0b1220", paddingBottom: 90 }}>
+      {/* Top header */}
       <div
         style={{
           position: "sticky",
           top: 0,
           zIndex: 10,
-          background: "linear-gradient(180deg,#3f5c9a 0%, #2e3f6e 100%)",
-          padding: "14px 14px 16px",
+
+          // ✅ DARK GLASS HEADER
+          background:
+            "linear-gradient(180deg, rgba(8,10,14,0.92) 0%, rgba(8,10,14,0.82) 100%)",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          backdropFilter: "blur(14px)",
+
+          padding: "14px 14px 18px",
           color: "white",
           borderBottomLeftRadius: 24,
           borderBottomRightRadius: 24,
-          boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
+          boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
         }}
       >
-        {/* Logo + sağ ikonlar */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              background: "rgba(255,255,255,0.15)",
+              width: 40,
+              height: 40,
+              borderRadius: 14,
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.10)",
               display: "grid",
               placeItems: "center",
               fontWeight: 900,
@@ -91,26 +74,26 @@ export default function Home() {
             ✓
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <div style={{ fontWeight: 900, letterSpacing: 0.4 }}>TRUSBE</div>
-            <div style={{ fontSize: 11, opacity: 0.85 }}>
+          <div style={{ lineHeight: 1.1 }}>
+            <div style={{ fontWeight: 900, letterSpacing: 0.4, fontSize: 16 }}>
+              TRUSBE
+            </div>
+            <div style={{ opacity: 0.85, fontSize: 12 }}>
               Trust Beyond Expectation
             </div>
           </div>
 
           <div style={{ flex: 1 }} />
 
-          {/* Ülke seçici */}
+          {/* ✅ COUNTRY SELECT DARK */}
           <select
             value={country}
-            onChange={(e) =>
-              setCountry(e.target.value as "Türkiye" | "Bali" | "Dubai" | "Katar")
-            }
+            onChange={(e) => setCountry(e.target.value as Country)}
             style={{
               height: 40,
               borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.22)",
-              background: "rgba(255,255,255,0.14)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              background: "rgba(255,255,255,0.06)",
               color: "white",
               padding: "0 10px",
               fontWeight: 800,
@@ -119,21 +102,20 @@ export default function Home() {
             }}
             title="Ülke"
           >
-            <option value="Türkiye" style={{ color: "#0f172a" }}>
+            <option style={{ color: "#111" }} value="Türkiye">
               Türkiye
             </option>
-            <option value="Bali" style={{ color: "#0f172a" }}>
+            <option style={{ color: "#111" }} value="Bali">
               Bali
             </option>
-            <option value="Dubai" style={{ color: "#0f172a" }}>
+            <option style={{ color: "#111" }} value="Dubai">
               Dubai
             </option>
-            <option value="Katar" style={{ color: "#0f172a" }}>
+            <option style={{ color: "#111" }} value="Katar">
               Katar
             </option>
           </select>
 
-          {/* Kategoriler */}
           <button
             onClick={() => setCategoriesOpen(true)}
             style={iconBtn}
@@ -142,7 +124,6 @@ export default function Home() {
             ▦
           </button>
 
-          {/* Çıkış */}
           <button
             onClick={() => {
               localStorage.removeItem("trusbe_user");
@@ -156,27 +137,26 @@ export default function Home() {
         </div>
 
         {/* Search */}
-        <div style={{ marginTop: 12, position: "relative" }}>
+        <div style={{ marginTop: 14, position: "relative" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 10,
-              background: "rgba(255,255,255,0.18)",
-              border: "1px solid rgba(255,255,255,0.22)",
+
+              // ✅ SEARCH DARK GLASS
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.10)",
               borderRadius: 16,
               padding: "10px 12px",
               backdropFilter: "blur(10px)",
             }}
           >
             <span style={{ opacity: 0.9 }}>🔍</span>
-
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={`e-trust search (otel, kafe, isim, skor...)${
-                chipText ? " • " + chipText : ""
-              }`}
+              placeholder={`e-trust search (otel, kafe, isim, skor...) • ${country}`}
               style={{
                 flex: 1,
                 border: "none",
@@ -187,16 +167,12 @@ export default function Home() {
               }}
             />
 
-            {/* TEMİZLE (KAYBOLMAYACAK) */}
-            {(query.trim() || selectedCategory) && (
+            {query.trim().length > 0 ? (
               <button
-                onClick={() => {
-                  setQuery("");
-                  setSelectedCategory(null);
-                }}
+                onClick={() => setQuery("")}
                 style={{
-                  border: "1px solid rgba(255,255,255,0.22)",
-                  background: "rgba(0,0,0,0.18)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.06)",
                   color: "white",
                   padding: "8px 10px",
                   borderRadius: 14,
@@ -205,38 +181,39 @@ export default function Home() {
                 }}
                 title="Temizle"
               >
-                Temizle
+                ✕
               </button>
-            )}
+            ) : null}
 
-            {/* ARA (KAYBOLMAYACAK) */}
+            {/* ✅ GOLD SEARCH BUTTON */}
             <button
               onClick={() => alert("Search: " + (query || "—"))}
               style={{
-                border: "none",
-                background: "rgba(255,255,255,0.18)",
+                border: "1px solid rgba(255,215,0,0.25)",
+                background: "rgba(255,215,0,0.18)",
                 color: "white",
                 padding: "8px 12px",
                 borderRadius: 14,
                 cursor: "pointer",
-                fontWeight: 900,
+                fontWeight: 800,
               }}
-              title="Ara"
             >
               Ara
             </button>
           </div>
 
-          {/* Suggestions */}
+          {/* Suggestions dropdown */}
           {query.trim().length > 0 && (
             <div
               style={{
                 marginTop: 10,
-                background: "white",
+                background: "rgba(12,16,24,0.96)",
+                color: "white",
                 borderRadius: 16,
-                boxShadow: "0 20px 50px rgba(0,0,0,0.18)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.55)",
                 overflow: "hidden",
-                border: "1px solid rgba(15,23,42,0.08)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                backdropFilter: "blur(12px)",
               }}
             >
               {suggestions.slice(0, 7).map((s) => (
@@ -246,7 +223,8 @@ export default function Home() {
                   style={{
                     padding: "12px 14px",
                     cursor: "pointer",
-                    borderBottom: "1px solid rgba(15,23,42,0.06)",
+                    borderBottom: "1px solid rgba(255,255,255,0.06)",
+                    opacity: 0.95,
                   }}
                 >
                   {s}
@@ -256,15 +234,23 @@ export default function Home() {
           )}
         </div>
 
-        {/* Seçili kategori chip */}
+        {/* Selected category chip */}
         {selectedCategory ? (
-          <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+          <div
+            style={{
+              marginTop: 10,
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             <div
               style={{
                 padding: "8px 12px",
                 borderRadius: 999,
-                background: "rgba(255,255,255,0.18)",
-                border: "1px solid rgba(255,255,255,0.22)",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.10)",
                 fontWeight: 800,
                 fontSize: 12,
               }}
@@ -276,72 +262,73 @@ export default function Home() {
               style={{
                 padding: "8px 12px",
                 borderRadius: 999,
-                background: "rgba(0,0,0,0.15)",
-                border: "1px solid rgba(255,255,255,0.22)",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.10)",
                 color: "white",
                 cursor: "pointer",
                 fontWeight: 900,
                 fontSize: 12,
               }}
             >
-              Kaldır
+              Temizle
             </button>
           </div>
         ) : null}
       </div>
 
-      {/* CONTENT */}
+      {/* Content */}
       <div style={{ padding: 14 }}>
-        <ExpandableCard
-          icon="✅"
+        <ExpandableSection
+          icon="⭐"
           title="Bee’nin Seçimleri"
           desc={`${country} için en güvenilir öneriler.`}
           open={openKey === "bee"}
-          onToggle={() => toggle("bee")}
+          onToggle={() => setOpenKey(openKey === "bee" ? null : "bee")}
         >
-          <DemoLine title="Galata Kulesi" score={94} meta="Tarihi • Gece güvenli" />
-          <DemoLine title="Karaköy Kahve" score={91} meta="Kafe • Kalabalık orta" />
-          <DemoLine title="Cihangir Restoran" score={89} meta="Restoran • Premium" />
-          <SmallHint />
-        </ExpandableCard>
+          <ListItem title="Galata Kulesi" meta="Tarihi • Gece güvenli" score={92} />
+          <ListItem title="Karaköy Kahve" meta="Kafe • Kalabalık orta" score={85} />
+          <ListItem title="Cihangir Restoran" meta="Restoran • Premium" score={88} />
+          <Note text='Harita entegrasyonu sırada: “Haritada Gör” butonu + pinler.' />
+        </ExpandableSection>
 
-        <ExpandableCard
-          icon="🥇"
+        <ExpandableSection
+          icon="🛡️"
           title="En Güvenilir Yerler"
           desc="En yüksek güven skoruna sahip mekanlar."
-          open={openKey === "best"}
-          onToggle={() => toggle("best")}
+          open={openKey === "trusted"}
+          onToggle={() => setOpenKey(openKey === "trusted" ? null : "trusted")}
         >
-          <DemoLine title="Top Otel (Merkez)" score={96} meta="Otel • Aile dostu" />
-          <DemoLine title="Güvenli Hastane" score={95} meta="Sağlık • 7/24" />
-          <DemoLine title="En İyi AVM" score={93} meta="Alışveriş • Güvenlik güçlü" />
-          <SmallHint />
-        </ExpandableCard>
+          <ListItem title="Top Otel (Merkez)" meta="Otel • Aile dostu" score={90} />
+          <ListItem title="Güvenli Hastane" meta="Sağlık • 7/24" score={96} />
+          <ListItem title="En İyi AVM" meta="Alışveriş • Güvenlik güçlü" score={91} />
+          <Note text='Harita entegrasyonu sırada: “Haritada Gör” butonu + pinler.' />
+        </ExpandableSection>
 
-        <ExpandableCard
+        <ExpandableSection
           icon="🏆"
           title="Top 10 Liste"
           desc="Kategoriye göre en güvenilir 10."
-          open={openKey === "top"}
-          onToggle={() => toggle("top")}
+          open={openKey === "top10"}
+          onToggle={() => setOpenKey(openKey === "top10" ? null : "top10")}
         >
-          {selectedCategory ? (
-            <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>
-              Seçili kategori: <b>{selectedCategory}</b>
-            </div>
-          ) : (
-            <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>
-              Kategori seçersen liste filtrelenir.
-            </div>
-          )}
-          <DemoLine title="1) Örnek Mekan" score={92} meta="—" />
-          <DemoLine title="2) Örnek Mekan" score={90} meta="—" />
-          <DemoLine title="3) Örnek Mekan" score={88} meta="—" />
-          <SmallHint />
-        </ExpandableCard>
+          <div
+            style={{
+              opacity: 0.85,
+              marginBottom: 10,
+              fontSize: 13,
+              color: "rgba(255,255,255,0.85)",
+            }}
+          >
+            Kategori seçersen liste filtrelenir.
+          </div>
+          <RankItem n={1} title="Örnek Mekan" score={93} />
+          <RankItem n={2} title="Örnek Mekan" score={91} />
+          <RankItem n={3} title="Örnek Mekan" score={89} />
+          <Note text='Harita entegrasyonu sırada: “Haritada Gör” butonu + pinler.' />
+        </ExpandableSection>
       </div>
 
-      {/* BOTTOM NAV (KAYBOLMAYACAK) */}
+      {/* Bottom nav */}
       <div
         style={{
           position: "fixed",
@@ -349,14 +336,15 @@ export default function Home() {
           right: 12,
           bottom: 12,
           height: 56,
-          background: "white",
+          background: "rgba(10,15,25,0.85)",
           borderRadius: 18,
-          boxShadow: "0 15px 40px rgba(0,0,0,0.18)",
+          boxShadow: "0 15px 40px rgba(0,0,0,0.35)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-around",
-          border: "1px solid rgba(15,23,42,0.08)",
+          border: "1px solid rgba(255,255,255,0.10)",
           zIndex: 20,
+          backdropFilter: "blur(12px)",
         }}
       >
         <NavIcon label="👤" />
@@ -365,7 +353,7 @@ export default function Home() {
         <NavIcon label="🏠" />
       </div>
 
-      {/* CATEGORIES OVERLAY */}
+      {/* Overlay */}
       <CategoriesOverlay
         open={categoriesOpen}
         onClose={() => setCategoriesOpen(false)}
@@ -375,116 +363,55 @@ export default function Home() {
   );
 }
 
-function ExpandableCard({
-  icon,
+function ListItem({
   title,
-  desc,
-  open,
-  onToggle,
-  children,
-}: {
-  icon: string;
-  title: string;
-  desc: string;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      onClick={onToggle}
-      style={{
-        display: "flex",
-        gap: 12,
-        alignItems: "flex-start",
-        background: "white",
-        borderRadius: 18,
-        padding: 14,
-        marginBottom: 12,
-        boxShadow: "0 12px 25px rgba(0,0,0,0.06)",
-        border: "1px solid rgba(15,23,42,0.06)",
-        cursor: "pointer",
-        userSelect: "none",
-      }}
-    >
-      <div
-        style={{
-          width: 54,
-          height: 54,
-          borderRadius: 16,
-          background: "linear-gradient(180deg,#f3d27a 0%, #caa546 100%)",
-          display: "grid",
-          placeItems: "center",
-          fontSize: 22,
-          flex: "0 0 auto",
-        }}
-      >
-        {icon}
-      </div>
-
-      <div style={{ flex: 1, paddingTop: 2 }}>
-        <div style={{ fontWeight: 900, fontSize: 16 }}>{title}</div>
-        <div style={{ opacity: 0.75, marginTop: 4, fontSize: 13 }}>{desc}</div>
-
-        {open ? (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              marginTop: 12,
-              paddingTop: 10,
-              borderTop: "1px solid rgba(15,23,42,0.08)",
-            }}
-          >
-            {children}
-          </div>
-        ) : null}
-      </div>
-
-      <div style={{ opacity: 0.55, fontWeight: 900, paddingTop: 8 }}>
-        {open ? "▾" : "▸"}
-      </div>
-    </div>
-  );
-}
-
-function DemoLine({
-  title,
-  score,
   meta,
+  score,
 }: {
   title: string;
-  score: number;
   meta: string;
+  score: number;
 }) {
   return (
     <div
       style={{
+        padding: "10px 12px",
+        borderRadius: 14,
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.82)",
+        marginBottom: 10,
         display: "flex",
         alignItems: "center",
         gap: 10,
-        padding: "10px 10px",
-        borderRadius: 14,
-        border: "1px solid rgba(15,23,42,0.08)",
-        marginBottom: 8,
-        background: "rgba(2,6,23,0.02)",
       }}
     >
       <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 900 }}>{title}</div>
-        <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2 }}>{meta}</div>
+        <div style={{ fontWeight: 900, color: "#0b1220" }}>{title}</div>
+        <div
+          style={{
+            opacity: 0.75,
+            marginTop: 2,
+            fontSize: 12,
+            color: "#0b1220",
+          }}
+        >
+          {meta}
+        </div>
       </div>
+
       <div
         style={{
-          minWidth: 44,
-          height: 34,
+          minWidth: 46,
+          height: 30,
           borderRadius: 12,
           display: "grid",
           placeItems: "center",
-          background: "rgba(79,124,255,0.10)",
-          border: "1px solid rgba(79,124,255,0.22)",
           fontWeight: 900,
+          color: "#0b1220",
+          background: "rgba(255, 215, 0, 0.35)",
+          border: "1px solid rgba(15,23,42,0.10)",
         }}
-        title="Güven Skoru"
+        title="Trust Score"
       >
         {score}
       </div>
@@ -492,10 +419,75 @@ function DemoLine({
   );
 }
 
-function SmallHint() {
+function RankItem({
+  n,
+  title,
+  score,
+}: {
+  n: number;
+  title: string;
+  score: number;
+}) {
   return (
-    <div style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }}>
-      Harita entegrasyonu sırada: “Haritada Gör” butonu + pinler.
+    <div
+      style={{
+        padding: "10px 12px",
+        borderRadius: 14,
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.82)",
+        marginBottom: 10,
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
+      <div style={{ flex: 1 }}>
+        <div style={{ fontWeight: 900, color: "#0b1220" }}>
+          {n}) {title}
+        </div>
+        <div
+          style={{
+            opacity: 0.65,
+            marginTop: 2,
+            fontSize: 12,
+            color: "#0b1220",
+          }}
+        >
+          —
+        </div>
+      </div>
+
+      <div
+        style={{
+          minWidth: 46,
+          height: 30,
+          borderRadius: 12,
+          display: "grid",
+          placeItems: "center",
+          fontWeight: 900,
+          color: "#0b1220",
+          background: "rgba(255, 215, 0, 0.35)",
+          border: "1px solid rgba(15,23,42,0.10)",
+        }}
+        title="Trust Score"
+      >
+        {score}
+      </div>
+    </div>
+  );
+}
+
+function Note({ text }: { text: string }) {
+  return (
+    <div
+      style={{
+        marginTop: 8,
+        fontSize: 12,
+        opacity: 0.75,
+        color: "rgba(255,255,255,0.75)",
+      }}
+    >
+      {text}
     </div>
   );
 }
@@ -509,8 +501,10 @@ function NavIcon({ label, active }: { label: string; active?: boolean }) {
         borderRadius: 14,
         display: "grid",
         placeItems: "center",
-        background: active ? "rgba(79,124,255,0.12)" : "transparent",
-        border: active ? "1px solid rgba(79,124,255,0.25)" : "none",
+        background: active ? "rgba(255, 215, 0, 0.18)" : "transparent",
+        border: active
+          ? "1px solid rgba(255, 215, 0, 0.28)"
+          : "1px solid rgba(255,255,255,0.06)",
         fontSize: 20,
       }}
     >
@@ -519,12 +513,13 @@ function NavIcon({ label, active }: { label: string; active?: boolean }) {
   );
 }
 
+// ✅ ICON BUTTON DARK
 const iconBtn: React.CSSProperties = {
   width: 40,
   height: 40,
   borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.22)",
-  background: "rgba(255,255,255,0.14)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.06)",
   color: "white",
   cursor: "pointer",
   fontWeight: 900,

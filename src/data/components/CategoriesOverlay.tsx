@@ -6,11 +6,7 @@ type Props = {
   onSelectCategory?: (categoryId: string) => void;
 };
 
-export default function CategoriesOverlay({
-  open,
-  onClose,
-  onSelectCategory,
-}: Props) {
+export default function CategoriesOverlay({ open, onClose, onSelectCategory }: Props) {
   if (!open) return null;
 
   return (
@@ -24,49 +20,41 @@ export default function CategoriesOverlay({
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        paddingTop: 80,
-        paddingLeft: 16,
-        paddingRight: 16,
-
-        // mobilde scroll hissi daha düzgün olsun
-        overscrollBehavior: "contain",
+        paddingTop: 70,
+        paddingLeft: 12,
+        paddingRight: 12,
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "min(920px, 100%)",
+          width: "min(860px, 100%)",
           background: "rgba(255,255,255,0.10)",
           border: "1px solid rgba(255,255,255,0.18)",
           borderRadius: 22,
-          padding: 18,
+          padding: 16,
           color: "white",
           backdropFilter: "blur(14px)",
-
-          // ✅ MOBİL SCROLL FIX:
-          maxHeight: "calc(100vh - 110px)",
-          overflowY: "auto",
-          WebkitOverflowScrolling: "touch",
         }}
       >
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: 1 }}>
+          <div style={{ fontSize: 16, fontWeight: 900, letterSpacing: 1 }}>
             KATEGORİLER
           </div>
           <div style={{ flex: 1 }} />
           <button
             onClick={onClose}
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: 14,
+              width: 38,
+              height: 38,
+              borderRadius: 12,
               border: "1px solid rgba(255,255,255,0.20)",
               background: "rgba(255,255,255,0.10)",
               color: "white",
               cursor: "pointer",
-              fontSize: 20,
-              lineHeight: "42px",
+              fontSize: 18,
+              lineHeight: "38px",
             }}
             aria-label="Close"
           >
@@ -74,56 +62,64 @@ export default function CategoriesOverlay({
           </button>
         </div>
 
-        {/* List (senin istediğin detaylı görünüm) */}
+        {/* Scroll area (mobil fix) */}
         <div
           style={{
-            marginTop: 14,
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: 12,
+            marginTop: 12,
+            maxHeight: "calc(100vh - 160px)",
+            overflowY: "auto",
+            paddingRight: 4,
           }}
         >
-          {CATEGORIES.map((c) => {
-            const locked = !!c.locked;
-            return (
-              <button
-                key={c.id}
-                onClick={() => {
-                  if (locked) return;
-                  onSelectCategory?.(c.id);
-                  onClose();
-                }}
-                style={{
-                  textAlign: "left",
-                  padding: "14px 16px",
-                  borderRadius: 18,
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  background: "rgba(255,255,255,0.10)",
-                  color: "white",
-                  cursor: locked ? "not-allowed" : "pointer",
-                  opacity: locked ? 0.55 : 1,
-                }}
-              >
-                <div style={{ fontWeight: 900, fontSize: 15 }}>{c.title}</div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: 12,
+            }}
+          >
+            {CATEGORIES.map((c) => {
+              const disabled = c.disabled === true;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    if (disabled) return;
+                    onSelectCategory?.(c.id);
+                    onClose();
+                  }}
+                  style={{
+                    textAlign: "left",
+                    padding: "12px 14px",
+                    borderRadius: 18,
+                    border: "1px solid rgba(255,255,255,0.18)",
+                    background: disabled
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(255,255,255,0.10)",
+                    color: "white",
+                    cursor: disabled ? "not-allowed" : "pointer",
+                    opacity: disabled ? 0.65 : 1,
+                  }}
+                >
+                  <div style={{ fontWeight: 900 }}>{c.title}</div>
+                  {c.subtitle ? (
+                    <div style={{ marginTop: 4, fontSize: 12, opacity: 0.80 }}>
+                      {c.subtitle}
+                    </div>
+                  ) : null}
+                  {disabled && c.note ? (
+                    <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
+                      {c.note}
+                    </div>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
 
-                {c.subtitle ? (
-                  <div style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>
-                    {c.subtitle}
-                  </div>
-                ) : null}
-
-                {locked ? (
-                  <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
-                    Phase 2’de açılır
-                  </div>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ marginTop: 12, fontSize: 12, opacity: 0.75 }}>
-          Phase 1: kişiler görünmez (altyapı hazır). Phase 2’de açılır.
+          <div style={{ marginTop: 12, fontSize: 12, opacity: 0.75 }}>
+            Phase 1: kişiler görünmez (altyapı hazır). Phase 2’de açılır.
+          </div>
         </div>
       </div>
     </div>
