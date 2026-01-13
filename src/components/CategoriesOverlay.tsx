@@ -27,6 +27,7 @@ export default function CategoriesOverlay({
         paddingTop: 80,
         paddingLeft: 16,
         paddingRight: 16,
+        overflowY: "auto",
       }}
     >
       <div
@@ -39,10 +40,11 @@ export default function CategoriesOverlay({
           padding: 18,
           color: "white",
           backdropFilter: "blur(14px)",
+          marginBottom: 40,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1 }}>
+          <div style={{ fontSize: 16, fontWeight: 800 }}>
             KATEGORİLER
           </div>
           <div style={{ flex: 1 }} />
@@ -57,9 +59,7 @@ export default function CategoriesOverlay({
               color: "white",
               cursor: "pointer",
               fontSize: 18,
-              lineHeight: "38px",
             }}
-            aria-label="Close"
           >
             ✕
           </button>
@@ -91,11 +91,11 @@ export default function CategoriesOverlay({
               }}
             >
               <div style={{ fontWeight: 700 }}>{c.title}</div>
-              {c.subtitle ? (
-                <div style={{ marginTop: 4, fontSize: 12, opacity: 0.75 }}>
+              {c.subtitle && (
+                <div style={{ fontSize: 12, opacity: 0.75 }}>
                   {c.subtitle}
                 </div>
-              ) : null}
+              )}
             </button>
           ))}
         </div>
